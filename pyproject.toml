@@ -1,0 +1,22 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "atgsm"
+version = "0.1"
+description = "Python lib for AT GSM commands"
+readme = "README.md"
+requires-python = ">=3.7"
+dependencies = [
+  'smspdudecoder >= 2.0.0',
+  'pyserial >= 3.5'
+]
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "License :: OSI Approved :: MIT License",
+]
+
+[project.urls]
+"Homepage" = "https://github.com/H4ckd4ddy/atgsm"
+"Bug Tracker" = "https://github.com/H4ckd4ddy/atgsm/issues"
