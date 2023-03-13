@@ -1,6 +1,7 @@
 import serial
 import serial.tools.list_ports
 from smspdudecoder.codecs import GSM, UCS2
+from os import urandom
 
 
 class AT:
@@ -18,35 +19,62 @@ class AT:
 				pass
 		return ports
 
+	@classmethod
+	def add_checksum_to_imei(cls, imei):
+		reverse = ''.join(reversed(str(imei)))
+		total = 0
+		for index in range(0, len(reverse), 2):
+			sub_total = int(reverse[index])*2
+			for digit in str(sub_total):
+				total += int(digit)
+		for index in range(1, len(reverse), 2):
+			total += int(reverse[index])
+		return str(imei) + str(10 - (total%10))
+
+	@classmethod
+	def check_imei(cls, imei):
+		return (str(imei) == cls.add_checksum_to_imei(str(imei)[:-1]))
+
 
 	def __init__(self, device, baudrate=115200):
-		self.mutex = False
+		self.queue = []
 		self.serial = serial.Serial(device, baudrate=baudrate, timeout=0.1, write_timeout=0.1, inter_byte_timeout=0.1)
 
 	def send_command(self, command):
-		while self.mutex:
+		queue_id = urandom(4).hex()
+		self.queue.append(queue_id)
+
+		while self.queue[0] != queue_id:
 			pass
-		self.mutex = True
-		self.serial.reset_input_buffer()
-		self.serial.reset_output_buffer()
-		self.serial.write((command+'\n\r').encode())
 
-		buffer = self.serial.readline()
-		if not buffer:
-			return ''
-		
 		response = ''
-		response_line = ''
-		count = 0
-		while 'OK' not in response_line and 'ERROR' not in response_line and count < 3:
-			raw = self.serial.readline()
-			if raw:
-				response_line = raw.decode('iso-8859-1')
-				response += response_line
-			else:
-				count += 1
 
-		self.mutex = False
+		try:
+			self.serial.reset_input_buffer()
+			self.serial.reset_output_buffer()
+			self.serial.write((command+'\n\r').encode())
+
+			buffer = self.serial.readline()
+			if not buffer:
+				raise Exception('No reponse from serial device')
+			
+			response_line = ''
+			read_tries = 0
+			while 'OK' not in response_line and 'ERROR' not in response_line:
+				raw = self.serial.readline()
+				if raw:
+					response_line = raw.decode('iso-8859-1')
+					response += response_line
+					read_tries = 0
+				else:
+					read_tries += 1
+
+				if read_tries >= 3:
+					raise Exception('Timeout before end of response')
+		except:
+			pass
+
+		self.queue.remove(queue_id)
 		return response.strip('\r\n')
 
 
