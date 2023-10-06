@@ -52,7 +52,10 @@ class AT:
 		try:
 			self.serial.reset_input_buffer()
 			self.serial.reset_output_buffer()
-			self.serial.write((command+'\n\r').encode())
+			if isinstance(command, str):
+				self.serial.write((command+'\n\r').encode())
+			else:
+				self.serial.write(command)
 
 			buffer = self.serial.readline()
 			if not buffer:
@@ -71,7 +74,7 @@ class AT:
 
 				if read_tries >= 3:
 					raise Exception('Timeout before end of response')
-		except:
+		except Exception as error:
 			pass
 
 		self.queue.remove(queue_id)
@@ -151,11 +154,11 @@ class AT:
 		self.send_command('AT+CPMS="SM","SM","SM"')
 		self.send_command('AT+CSCS="8859-1"')
 
-	#def send_sms(self, destination, content):
-	#	self.send_command('AT+CMGS={}'.format(destination))
-	#	self.send_command(content)
-	#	self.serial.write(chr(26))
-
+	def send_sms(self, destination, content):
+		self.init_sms_configuration()
+		self.send_command('AT+CMGS="{}"'.format(destination))
+		self.send_command(content)
+		self.send_command(chr(26).encode())
 
 	def parse_sms(self, raw_sms):
 		lines = raw_sms.split('\r\n')
@@ -238,15 +241,15 @@ class AT:
 	#              #
 	################
 	
-	def dial(number):
+	def dial(self, number):
 		return 'OK' in self.send_command('ATD{};'.format(number))
 
-	def answer():
+	def answer(self):
 		return 'OK' in self.send_command('ATA')
 
-	def hang_up():
+	def hang_up(self):
 		return 'OK' in self.send_command('ATH')
 
-	def press_key(key):
+	def press_key(self, key):
 		return 'OK' in self.send_command('AT+CKPD={}'.format(key))
 

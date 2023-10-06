@@ -69,6 +69,11 @@ device.reset_sim_pin(puk, new_pin)
 # SMS related functions #
 #########################
 
+device.send_sms(phone_number, content)
+# - phone_number = string (destination phone number)
+# - content = string (sms content)
+# return nothing
+
 device.get_sms_list(include_read, keep_unread)
 # - include_read = boolean (include already read messages only if True)
 # - keep_unread = boolean (keep messages unread only if True)
