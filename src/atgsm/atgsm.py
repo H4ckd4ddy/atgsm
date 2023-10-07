@@ -117,6 +117,7 @@ class AT:
 		self.send_command('AT+QPOWD=1')
 
 
+
 	################
 	#              #
 	#      SIM     #
@@ -252,4 +253,20 @@ class AT:
 
 	def press_key(self, key):
 		return 'OK' in self.send_command('AT+CKPD={}'.format(key))
+
+	def get_call_count(self):
+		status_list = ('active', 'held', 'dialing', 'alerting', 'incoming', 'waiting')
+		counts = {}
+		for status_name in status_list:
+			counts[status_name] = 0
+		counts['total'] = 0
+		result = self.send_command('AT+CLCC')
+		if 'OK' in result:
+			array = result.split('\r\n\r\n')
+			for line in array:
+				if '+CLCC' in line:
+					status_code = int(line.split(',')[2])
+					counts[status_list[status_code]] += 1
+					counts['total'] += 1
+		return counts
 

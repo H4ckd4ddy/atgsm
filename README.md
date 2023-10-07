@@ -29,6 +29,10 @@ device.is_responding()
 device.get_imei()
 # return device IMEI (ex: '000000000000001')
 
+device.set_imei(new_imei)
+# - new_imei = string (new imei number to set)
+# return boolean (ex: True)
+
 device.get_imsi()
 # return SIM IMSI (ex: '000000000000001')
 
@@ -40,6 +44,9 @@ device.get_signal_strength()
 
 device.is_network_ready()
 # return boolean (ex: True)
+
+device.reboot()
+# return nothing
 
 
 #########################
@@ -83,7 +90,7 @@ device.get_sms_list(include_read, keep_unread)
 device.get_sms(message_index, keep_unread)
 # - message_index = int (index of specific message to get)
 # - keep_unread = boolean (keep messages unread only if True)
-# return requested message as dict
+# return requested message as dict, ex :
 # {'index': '1', 'status': 'REC READ', 'readed': True, 'sender': '+33XXXXXXXXX', 'time': '2023/XX/XX XX:XX:XX+XX', 'content': 'This is text'}
 
 device.delete_sms(message_index)
@@ -130,4 +137,8 @@ device.hang_up()
 device.press_key(key)
 # - key = string (key to press on keypad during call)
 # return boolean of success (ex: True)
+
+device.get_call_count()
+# return current calls counts for each status (active, held, dialing, alerting, incoming, waiting, total) as dict, ex :
+# {'active': 1, 'held': 0, 'dialing': 0, 'alerting': 0, 'incoming': 1, 'waiting':0, 'total': 2}
 ```
