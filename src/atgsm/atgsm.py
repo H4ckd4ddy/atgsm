@@ -252,7 +252,7 @@ class AT:
 		return 'OK' in self.send_command('ATH')
 
 	def press_key(self, key):
-		return 'OK' in self.send_command('AT+CKPD={}'.format(key))
+		return 'OK' in self.send_command('AT+VTS={}'.format(key[0]))
 
 	def get_call_count(self):
 		status_list = ('active', 'held', 'dialing', 'alerting', 'incoming', 'waiting')
